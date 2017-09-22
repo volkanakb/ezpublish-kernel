@@ -74,19 +74,22 @@ class DomainMapper
      * @param \eZ\Publish\SPI\Persistence\Content\Type\Handler $contentTypeHandler
      * @param \eZ\Publish\SPI\Persistence\Content\Language\Handler $contentLanguageHandler
      * @param FieldTypeRegistry $fieldTypeRegistry
+     * @param ContentTypeDomainMapper $typeDomainMapper
      */
     public function __construct(
         ContentHandler $contentHandler,
         LocationHandler $locationHandler,
         TypeHandler $contentTypeHandler,
         LanguageHandler $contentLanguageHandler,
-        FieldTypeRegistry $fieldTypeRegistry
+        FieldTypeRegistry $fieldTypeRegistry,
+        ContentTypeDomainMapper $typeDomainMapper
     ) {
         $this->contentHandler = $contentHandler;
         $this->locationHandler = $locationHandler;
         $this->contentTypeHandler = $contentTypeHandler;
         $this->contentLanguageHandler = $contentLanguageHandler;
         $this->fieldTypeRegistry = $fieldTypeRegistry;
+        $this->typeDomainMapper = $typeDomainMapper;
     }
 
     /**
@@ -99,14 +102,8 @@ class DomainMapper
      *
      * @return \eZ\Publish\Core\Repository\Values\Content\Content
      */
-    public function buildContentDomainObject(SPIContent $spiContent, $contentType = null, array $fieldLanguages = null, $fieldAlwaysAvailableLanguage = null)
+    public function buildContentDomainObject(SPIContent $spiContent, ContentType $contentType = null, array $fieldLanguages = null, $fieldAlwaysAvailableLanguage = null)
     {
-        if ($contentType === null) {
-            $contentType = $this->contentTypeHandler->load(
-                $spiContent->versionInfo->contentInfo->contentTypeId
-            );
-        }
-
         $prioritizedFieldLanguageCode = null;
         $prioritizedLanguages = $fieldLanguages ?: [];
         if (!empty($prioritizedLanguages)) {
@@ -119,9 +116,24 @@ class DomainMapper
             }
         }
 
+        if (!$contentType instanceof ContentType) {
+            // Get a proxy for content type that will be loaded on use of Fields
+            $contentType = $this->typeDomainMapper->buildContentTypeProxyDomainObject(
+                function() use ($spiContent) {
+                    return $this->contentTypeHandler->load($spiContent->versionInfo->contentInfo->contentTypeId);
+                },
+                $fieldLanguages
+            );
+        }
+
         return new Content(
             array(
-                'internalFields' => $this->buildDomainFields($spiContent->fields, $contentType, $fieldLanguages, $fieldAlwaysAvailableLanguage),
+                // TODO: Use a GeneratorCollection, cable of handling string keys, as this is iterated over repeatedly
+                'internalFields' => $this->buildDomainFields(
+                    $spiContent->fields,
+                    $contentType,
+                    $fieldLanguages,
+                    $fieldAlwaysAvailableLanguage),
                 'versionInfo' => $this->buildVersionInfoDomainObject($spiContent->versionInfo, $prioritizedLanguages),
                 'prioritizedFieldLanguageCode' => $prioritizedFieldLanguageCode,
             )
@@ -134,14 +146,14 @@ class DomainMapper
      * @throws InvalidArgumentType On invalid $contentType
      *
      * @param \eZ\Publish\SPI\Persistence\Content\Field[] $spiFields
-     * @param ContentType|SPIType $contentType
+     * @param ContentType $contentType
      * @param array $languages A language priority, filters returned fields and is used as prioritized language code on
      *                         returned value object. If not given all languages are returned.
      * @param string|null $alwaysAvailableLanguage Language code fallback if a given field is not found in $languages
      *
-     * @return array
+     * @return \eZ\Publish\API\Repository\Values\Content\Field[]|\Generator
      */
-    public function buildDomainFields(array $spiFields, $contentType, array $languages = null, $alwaysAvailableLanguage = null)
+    public function buildDomainFields(array $spiFields, ContentType $contentType, array $languages = null, $alwaysAvailableLanguage = null)
     {
         if (!$contentType instanceof SPIType && !$contentType instanceof ContentType) {
             throw new InvalidArgumentType('$contentType', 'SPI ContentType | API ContentType');
@@ -161,7 +173,6 @@ class DomainMapper
             }
         }
 
-        $fields = array();
         foreach ($spiFields as $spiField) {
             // We ignore fields in content not part of the content type
             if (!isset($fieldIdentifierMap[$spiField->fieldDefinitionId])) {
@@ -182,7 +193,7 @@ class DomainMapper
                 }
             }
 
-            $fields[] = new Field(
+            yield new Field(
                 array(
                     'id' => $spiField->id,
                     'value' => $this->fieldTypeRegistry->getFieldType($spiField->type)
@@ -192,8 +203,6 @@ class DomainMapper
                 )
             );
         }
-
-        return $fields;
     }
 
     /**

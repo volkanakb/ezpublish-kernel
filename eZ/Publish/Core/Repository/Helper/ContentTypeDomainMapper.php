@@ -19,6 +19,7 @@ use eZ\Publish\Core\FieldType\ValidationError;
 use eZ\Publish\Core\Repository\Values\ContentType\ContentType;
 use eZ\Publish\Core\Repository\Values\ContentType\ContentTypeDraft;
 use eZ\Publish\Core\Repository\Values\ContentType\ContentTypeGroup;
+use eZ\Publish\Core\Repository\Values\ContentType\ContentTypeProxy;
 use eZ\Publish\Core\Repository\Values\ContentType\FieldDefinition;
 use eZ\Publish\Core\Repository\Values\GeneratorCollection;
 use eZ\Publish\SPI\FieldType\FieldType as SPIFieldType;
@@ -120,6 +121,29 @@ class ContentTypeDomainMapper
                 'defaultSortOrder' => $spiContentType->sortOrder,
                 'prioritizedLanguages' => $prioritizedLanguages,
             )
+        );
+    }
+
+    /**
+     * Returns ContentTypeProxy, a lazy loaded proxy for ContentType.
+     *
+     * @param callable $getSPIContentType Closure/callable to get spi content type (for full lazy loading)
+     * @param array $prioritizedLanguages
+     *
+     * @return \eZ\Publish\API\Repository\Values\ContentType\ContentType
+     */
+    public function buildContentTypeProxyDomainObject(callable $getSPIContentType, array $prioritizedLanguages = [])
+    {
+        return new ContentTypeProxy(
+            $this->generateContentTypeDomainObject($getSPIContentType, $prioritizedLanguages)
+        );
+    }
+
+    private function generateContentTypeDomainObject(callable $getSPIContentType, array $prioritizedLanguages = [])
+    {
+        yield $this->buildContentTypeDomainObject(
+            $getSPIContentType(),
+            $prioritizedLanguages
         );
     }
 

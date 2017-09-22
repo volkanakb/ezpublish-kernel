@@ -54,6 +54,14 @@ class Content extends APIContent
         foreach ($data as $propertyName => $propertyValue) {
             $this->$propertyName = $propertyValue;
         }
+    }
+
+    private function populateFields()
+    {
+        if (!empty($this->fields)) {
+            return;
+        }
+
         foreach ($this->internalFields as $field) {
             $this->fields[$field->fieldDefIdentifier][$field->languageCode] = $field->value;
         }
@@ -76,6 +84,7 @@ class Content extends APIContent
             $languageCode = $this->prioritizedFieldLanguageCode ?: $this->versionInfo->contentInfo->mainLanguageCode;
         }
 
+        $this->populateFields();
         if (isset($this->fields[$fieldDefIdentifier][$languageCode])) {
             return $this->fields[$fieldDefIdentifier][$languageCode];
         }
@@ -150,6 +159,9 @@ class Content extends APIContent
 
             case 'contentInfo':
                 return $this->versionInfo->contentInfo;
+
+            case 'fields':
+                $this->populateFields();// let lookup be done in parent now that it's been loaded.
         }
 
         return parent::__get($property);
