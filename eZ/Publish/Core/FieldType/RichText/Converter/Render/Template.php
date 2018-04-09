@@ -17,6 +17,8 @@ use DOMXPath;
 
 /**
  * RichText Template converter injects rendered template payloads into template elements.
+ *
+ * @deprecated v7.2.0. The RichText FieldType has been moved to ezsystems/ezplatform-richtext.
  */
 class Template extends Render implements Converter
 {

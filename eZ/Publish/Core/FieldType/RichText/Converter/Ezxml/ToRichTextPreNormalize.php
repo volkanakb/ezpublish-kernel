@@ -17,6 +17,8 @@ use DOMDocument;
  * Expands paragraphs and links embeds of a XML document in legacy ezxml format.
  *
  * Relies on XmlText's Expanding and EmbedLinking converters implementation.
+ *
+ * @deprecated v7.2.0. The RichText FieldType has been moved to ezsystems/ezplatform-richtext.
  */
 class ToRichTextPreNormalize implements Converter
 {

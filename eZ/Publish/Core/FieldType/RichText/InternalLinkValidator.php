@@ -16,6 +16,8 @@ use eZ\Publish\Core\Base\Exceptions\InvalidArgumentException;
 
 /**
  * Validator for RichText internal format links.
+ *
+ * @deprecated v7.2.0. The RichText FieldType has been moved to ezsystems/ezplatform-richtext.
  */
 class InternalLinkValidator
 {

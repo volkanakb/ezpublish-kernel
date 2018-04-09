@@ -13,6 +13,8 @@ use DOMDocument;
 
 /**
  * Dispatcher for various converters depending on the XML document namespace.
+ *
+ * @deprecated v7.2.0. The RichText FieldType has been moved to ezsystems/ezplatform-richtext.
  */
 class ConverterDispatcher
 {

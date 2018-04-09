@@ -12,6 +12,9 @@ use Doctrine\DBAL\Connection;
 use eZ\Publish\Core\FieldType\RichText\RichTextStorage\Gateway;
 use eZ\Publish\Core\FieldType\Url\UrlStorage\Gateway as UrlGateway;
 
+/**
+ * @deprecated v7.2.0. The RichText FieldType has been moved to ezsystems/ezplatform-richtext.
+ */
 class DoctrineStorage extends Gateway
 {
     /**

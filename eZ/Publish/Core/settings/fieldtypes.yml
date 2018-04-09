@@ -272,6 +272,7 @@ parameters:
         ZM: {Name: "Zambia", Alpha2: "ZM", Alpha3: "ZMB", IDC: "260"}
         ZW: {Name: "Zimbabwe", Alpha2: "ZW", Alpha3: "ZWE", IDC: "263"}
     ezpublish.fieldType.eznull.class: eZ\Publish\Core\FieldType\Null\Type
+    # deprecated since v7.2.0. RichText has been moved to ezsystems/ezplatform-richtext
     ezpublish.fieldType.ezrichtext.class: eZ\Publish\Core\FieldType\RichText\Type
 
 services:
@@ -405,6 +406,7 @@ services:
             - {name: ezpublish.fieldType, alias: ezurl}
 
     ezpublish.fieldType.ezrichtext:
+        deprecated: 'The "%service_id%" service is deprecated since v7.2.0. The richtext fieldtype and its components are moved to ezsystems/ezplatform-richtext. It will be removed in v8.0.0.'
         class: "%ezpublish.fieldType.ezrichtext.class%"
         parent: ezpublish.fieldType
         arguments:

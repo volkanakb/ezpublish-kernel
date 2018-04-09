@@ -13,6 +13,8 @@ use eZ\Publish\Core\MVC\ConfigResolverInterface;
 
 /**
  * Adds ConfigResolver awareness to the Xslt converter.
+ *
+ * @deprecated v7.2.0. The RichText FieldType has been moved to ezsystems/ezplatform-richtext.
  */
 class Html5Edit extends XsltConverter
 {

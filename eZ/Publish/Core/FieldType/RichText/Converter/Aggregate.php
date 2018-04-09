@@ -13,6 +13,8 @@ use DOMDocument;
 
 /**
  * Aggregate converter converts using configured converters in prioritized order.
+ *
+ * @deprecated v7.2.0. The RichText FieldType has been moved to ezsystems/ezplatform-richtext.
  */
 class Aggregate implements Converter
 {
