@@ -189,7 +189,12 @@ class EzPublishCoreExtension extends Extension
     {
         $loader->load('default_settings.yml');
 
-        if (!array_key_exists('EzPlatformRichTextBundle', $container->getParameter('kernel.bundles'))) {
+        if (!$container->hasParameter('kernel.bundles')
+            || !array_key_exists(
+                'EzPlatformRichTextBundle',
+                $container->getParameter('kernel.bundles')
+            )
+        ) {
             $loader->load('ezrichtext_default_settings.yml');
         }
 
@@ -367,6 +372,15 @@ class EzPublishCoreExtension extends Extension
         $coreLoader->load('notification.yml');
         $coreLoader->load('user_preference.yml');
 
+        if (!$container->hasParameter('kernel.bundles')
+            || !array_key_exists(
+                'EzPlatformRichTextBundle',
+                $container->getParameter('kernel.bundles')
+            )
+        ) {
+            $coreLoader->load('richtext.yml');
+        }
+
         // Public API services
         $loader->load('papi.yml');
 
@@ -375,6 +389,10 @@ class EzPublishCoreExtension extends Extension
 
         // Storage engine
         $loader->load('storage_engines.yml');
+
+        if (!array_key_exists('EzPlatformRichTextBundle', $container->getParameter('kernel.bundles'))) {
+            $coreLoader->load('richtext.yml');
+        }
     }
 
     /**
