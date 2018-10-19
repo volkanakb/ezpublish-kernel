@@ -38,7 +38,8 @@
         "phpunit/phpunit": "^7.0",
         "matthiasnoback/symfony-dependency-injection-test": "~3.0",
         "symfony/assetic-bundle": "~2.3",
-        "ezsystems/behatbundle": "^6.1"
+        "ezsystems/behatbundle": "^6.1",
+        "brianium/paratest": "^2.1"
     },
     "conflict": {
         "symfony/symfony": "3.4.7",
@@ -66,6 +67,8 @@
         }
     },
     "scripts": {
+        "tests": "@php ./vendor/bin/paratest -p auto",
+        "integration-tests": "@php ./vendor/bin/paratest -p half -c phpunit-integration-legacy.xml",
         "fix-cs": "@php ./vendor/bin/php-cs-fixer fix -v --show-progress=estimating"
     },
     "extra": {
